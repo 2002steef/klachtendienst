@@ -1,0 +1,5 @@
+RewriteEngine on
+
+# / will be redirected to /src
+RewriteCond %{REQUEST_FILENAME} !-f [NC]
+RewriteRule ^$ /src [L]
