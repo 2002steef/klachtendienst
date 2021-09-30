@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 session_start();
 
 //require
@@ -19,9 +19,9 @@ $email = $_POST['email'];
 $complaint = $_POST['complaint'];
 
 $log = new Logger('info-log');
-$log->pushHandler(new StreamHandler('/info.log', Logger::INFO));
-//$log->info("$name - $email - $complaint");
-$log->info('test');
+$log->pushHandler(new StreamHandler('info.log', Logger::INFO));
+$log->info("$name - $email - $complaint");
+//$log->info('test');
 
 
 // Check if name, email and message are given
