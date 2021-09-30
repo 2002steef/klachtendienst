@@ -1,49 +1,56 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 
 //require
 use Laminas\Validator\EmailAddress;
-
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require '../vendor/autoload.php';
 
 //constants
 $name = $_POST['name'];
 $email = $_POST['email'];
 $complaint = $_POST['complaint'];
 
+$log = new Logger('info-log');
+$log->pushHandler(new StreamHandler('/info.log', Logger::INFO));
+//$log->info("$name - $email - $complaint");
+$log->info('test');
+
+
 // Check if name, email and message are given
 if (!empty($name) && !empty($email) && !empty($complaint)) {
     $validator = new EmailAddress();
     if($validator->isValid($email)){
 
-        $mail = new PHPMailer(true);
+        $phpmailer = new PHPMailer(true);
 
         try {
-            // //Server settings
-            // $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-            // $mail->isSMTP();                                            //Send using SMTP
-            // $mail->Host       = 'smtp.example.com';                     //Set the SMTP server to send through
-            // $mail->SMTPAuth   = false;                                   //Enable SMTP authentication
-            // $mail->Username   = 'user@example.com';                     //SMTP username
-            // $mail->Password   = 'secret';                               //SMTP password
-            // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-            // $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-        
+            $phpmailer = new PHPMailer();
+            $phpmailer->isSMTP();
+            $phpmailer->Host = 'smtp.mailtrap.io';
+            $phpmailer->SMTPAuth = true;
+            $phpmailer->Port = 2525;
+            $phpmailer->Username = 'c07ec11f191672';
+            $phpmailer->Password = '7897b00ab200e7';
+
             //Recipients
-            // $mail->setFrom('from@example.com', 'Mailer');
-            $mail->addAddress($email);               //Name is optional
-            $mail->addCC('40187960@roctilburg.nl');
-        
+            // $phpmailer->setFrom('from@example.com', 'Mailer');
+            $phpmailer->addAddress($email);               //Name is optional
+            $phpmailer->addCC('40187960@roctilburg.nl');
+
             //Content
-            $mail->isHTML(false);
-            $mail->Subject = 'Klachtverwerking';
-            $mail->Body = $complaint;
-        
-            $mail->send();
+            $phpmailer->isHTML(false);
+            $phpmailer->Subject = 'Klachtverwerking';
+            $phpmailer->Body = $complaint;
+
+            $phpmailer->send();
             $_SESSION["success"] = "Uw klacht is in behandeling.";
         } catch (Exception $e) {
             $_SESSION["warning"] = "Het E-mail-bericht kon niet verstuurd worden.";
